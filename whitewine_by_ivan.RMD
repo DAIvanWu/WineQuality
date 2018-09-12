@@ -39,74 +39,120 @@ summary(df)
 df$quality <- as.numeric(df$quality)
 ```
 
-数据集有12个变量，最后一个是评分。观察11个参数变量：
+数据集有12个变量，最后一个是评分。观察11个参数变量：  
 
 # 单变量绘图选择
+
+查看评分的分布情况：
+
 ```{r}
 ggplot(aes(factor(quality)), data = df) + 
   geom_histogram(stat = 'count')
 ```  
   
-一大半的白葡萄酒评分在中间值5或者6，总体呈正态分布。   
+一大半的白葡萄酒评分在中间值5或者6，总体呈正态分布。     
+
+查看固定酸度的分布情况：
 
 ```{r}
 ggplot(aes(fixed.acidity), data = df) + geom_histogram()
 ```
+
+呈现长尾分布，对其做对数转换：
+
 ```{r}
 ggplot(aes(fixed.acidity), data = df) + geom_histogram() + scale_x_log10()
 ```
 
-转换长尾数据，固定酸度大部分在6和8之间。
+转换长尾数据后，看到固定酸度大部分在6和8之间。    
+
+查看挥发性酸度分布情况：
 
 ```{r}
 ggplot(aes(volatile.acidity), data = df) + geom_histogram()
 ```
+
+呈现长尾分布，对其做对数转换：
+
 ```{r}
 ggplot(aes(volatile.acidity), data = df) + geom_histogram() + scale_x_log10()
 ```
 
-转换长尾数据，挥发性酸度大部分在0.27和0.3之间。
+转换长尾数据后，看到挥发性酸度大部分在0.27和0.3之间。    
+
+查看柠檬酸分布情况：
 
 ```{r}
 ggplot(aes(citric.acid), data = df) + geom_histogram()
 ```
+
+呈现长尾分布，对其做对数转换：
+
 ```{r}
 ggplot(aes(citric.acid), data = df) + geom_histogram() + scale_x_log10()
 ```
 
-对数转换出现无限值，大部分柠檬酸在0.25和0.4之间。
+对数转换出现无限值，看到大部分柠檬酸在0.25和0.4之间。    
+
+查看残糖分布情况：
 
 ```{r}
 ggplot(aes(residual.sugar), data = df) + geom_histogram()
 ```
 
+呈现长尾分布，对其做对数转换：
+
 ```{r}
 ggplot(aes(residual.sugar), data = df) + geom_histogram() +
-  scale_x_log10(breaks=seq(0,40, 1))
+  scale_x_log10(breaks=seq(0,20,2)) + coord_cartesian(xlim = c(0.6,20))
 ```
 
-对数转换后出现双峰，看上去1.5和8.5两种残糖度数出现的比较多。
+对数转换后出现双峰，看上去1.5和8.5两种残糖度数出现的比较多。    
+
+查看氯化物分布情况：
 
 ```{r}
 ggplot(aes(chlorides), data = df) + geom_histogram()
 ```
+
+呈现长尾分布，对其做对数转换：
+
 ```{r}
 ggplot(aes(chlorides), data = df) + geom_histogram() + scale_x_log10()
 ```
+
+可以看到，大部分氯化物值出现在0.05左右。  
+
+查看游离二氧化硫分布情况：
+
 ```{r}
 ggplot(aes(free.sulfur.dioxide), data = df) + geom_histogram()
 ```
 
+呈现长尾分布，对其做对数转换：
+
 ```{r}
 ggplot(aes(free.sulfur.dioxide), data = df) + geom_histogram() + scale_x_log10()
 ```
+
+可以看到，游离二氧化硫出现最多的值在40左右。  
+
+查看总二氧化硫分布情况：
+
 ```{r}
 ggplot(aes(total.sulfur.dioxide), data = df) + geom_histogram()
 ```
 
+呈现长尾分布，对其做对数转换：
+
 ```{r}
 ggplot(aes(total.sulfur.dioxide), data = df) + geom_histogram() + scale_x_log10()
 ```
+
+可以看到总离二氧化硫出现最多的值在200左右。  
+
+查看密度分布情况：
+
 ```{r}
 ggplot(aes(density), data = df) + geom_histogram() 
 ```
@@ -117,6 +163,8 @@ ggplot(aes(density), data = df) + geom_histogram()
 ggplot(aes(density), data = df) + geom_histogram() + xlim(min(df$density),quantile(df$density,0.999))
 ```
 
+大部分密度在0.990到0.997之间。  
+
 由于“在游离SO2浓度超过50 ppm时，SO2在葡萄酒的气味和味道中变得明显”，这里我对游离SO2的ppm值产生了兴趣。因为游离SO2的单位是0.001 kg / m3， 而密度的单位是1000 kg / m3， 所以游离SO2的ppm值应该是游离SO2值乘以1000000再除以密度，即定义变量so2_ppm = free.sulfur.dioxide / density.
 
 ```{r}
@@ -126,13 +174,17 @@ df$so2_ppm <- df$free.sulfur.dioxide / df$density
 ggplot(aes(so2_ppm), data = df) + geom_histogram()
 ```
 
+呈现长尾分布，对其做对数转换，并集中观察10到80之间的分布：
+
 ```{r}
 ggplot(aes(so2_ppm), data = df) + geom_histogram() + 
   scale_x_log10(breaks=seq(0,300, 10)) +
   coord_cartesian(xlim=c(10,80))
 ```
 
-so2_ppm值在40左右最多，超过50下降明显。
+so2_ppm值在40左右最多，超过50下降明显。  
+
+查看PH值分布情况：  
 
 ```{r}
 ggplot(aes(pH), data = df) + geom_histogram() + 
@@ -143,22 +195,30 @@ ggplot(aes(pH), data = df) + geom_histogram() +
 summary(df$pH)
 ```
 
-pH值均值3.188，中位数3.180.
+pH值均值3.188，中位数3.180.  
+
+查看硫酸盐分布情况：  
 
 ```{r}
 ggplot(aes(sulphates), data = df) + geom_histogram()
 ```
 
+呈现长尾分布，对其做对数转换：  
+
 ```{r}
 ggplot(aes(sulphates), data = df) + geom_histogram() + scale_x_log10()
 ```
 
-硫酸盐能够促进so2含量，我感觉这个变量应该和so2含量相关性很强。
+硫酸盐能够促进so2含量，我感觉这个变量应该和so2含量相关性很强。  
+
+查看酒精度分布情况：  
 
 ```{r}
 ggplot(aes(alcohol), data = df) + geom_histogram(binwidth = .5)
 ```
+
 观察酒精度的值频数：
+
 ```{r}
 sort(table(df$alcohol), decreasing = T)
 ```
@@ -193,27 +253,41 @@ sort(table(df$alcohol), decreasing = T)
 
 
 # 双变量绘图选择
+ 
+查看各参数之间相关系数：  
+
 ```{r}
-corrplot(cor(df), method = 'number')
+corrplot(cor(df), type = 'upper', order = 'alphabet',
+         tl.srt = 90, addCoef.col = 'black', tl.col = 'orange',
+         number.cex = .6, tl.cex = .8, diag = FALSE)
 ```
 
-可以看出，评分与所有的参数都没有强相关关系，与酒精度和密度存在一定相关关系；与此同时，参数之间的相关性较为丰富：密度和残糖之间强相关，密度和酒精度强相关，在第一部分猜测的总二氧化硫和游离二氧化硫之间的相关性一般，总二氧化硫和密度的相关性也一般。
+可以看出，评分与所有的参数都没有强相关关系，与酒精度和密度存在一定相关关系；与此同时，参数之间的相关性较为丰富：密度和残糖之间强相关，密度和酒精度强相关，在第一部分猜测的总二氧化硫和游离二氧化硫之间的相关性一般，总二氧化硫和密度的相关性也一般。  
+
+查看酒精度和评分关系：
 
 ```{r}
 ggplot(aes(factor(quality),alcohol), data = df) + geom_boxplot()
 ```
 
-酒精度和评分存在一定相关关系，但不明显。
+酒精度和评分存在一定相关关系，但不明显。  
+
+查看密度和评分关系：
 
 ```{r}
 ggplot(aes(factor(quality),density), data = df) + geom_boxplot()
 ```
+
+去除密度最高的0.1%异常值：  
+
 ```{r}
 ggplot(aes(factor(quality),density), data = df) + geom_boxplot() +
   ylim(min(df$density),quantile(df$density,0.999))
 ```
 
-密度和评分存在一定相关关系，但不明显。
+密度和评分存在一定相关关系，但不明显。  
+
+查看密度和残糖关系：
 
 ```{r}
 ggplot(aes(density,residual.sugar), data = df) + geom_point(alpha = 0.2) +
@@ -221,6 +295,9 @@ ggplot(aes(density,residual.sugar), data = df) + geom_point(alpha = 0.2) +
   coord_cartesian(ylim=c(0,30)) + geom_smooth(method = 'lm')
 ```
 
+呈现一定的正相关关系。  
+
+查看密度和酒精度关系：  
 
 ```{r}
 ggplot(aes(density,alcohol), data = df) + geom_point(alpha = 0.2) +
@@ -229,7 +306,7 @@ ggplot(aes(density,alcohol), data = df) + geom_point(alpha = 0.2) +
   geom_smooth(method = 'lm')
 ```
 
-
+呈现一定的负相关关系。
 
 
 
@@ -252,13 +329,19 @@ ggplot(aes(density,alcohol), data = df) + geom_point(alpha = 0.2) +
 
 
 # 多变量绘图选择
+
+查看不同评分下so2_ppm的分布密度图：  
+
 ```{r}
 ggplot(aes(so2_ppm, color = factor(quality)), data = df) + geom_density() +
-  scale_x_log10(breaks=seq(0,300,10)) + 
+  scale_x_log10(breaks=seq(0,80,10)) + 
   scale_colour_brewer(type = "seq", palette = 1) + 
   theme(panel.background = element_rect(fill = '#808080'), 
         panel.grid = element_line(colour = '#696969'))
 ```
+
+着重观察20到70之间的值分布情况：
+
 ```{r}
 ggplot(aes(so2_ppm, color = factor(quality)), data = df) + geom_density() +
   scale_x_log10(breaks=seq(0,300,10)) + 
@@ -268,7 +351,9 @@ ggplot(aes(so2_ppm, color = factor(quality)), data = df) + geom_density() +
   coord_cartesian(xlim = c(20,70))
 ```
 
-评分最高的酒so2_ppm值在26和56左右出现最多。
+评分最高的酒so2_ppm值在26和56左右出现最多。  
+
+查看不同评分下密度的分布密度图：  
 
 ```{r}
 ggplot(aes(density, color = factor(quality)), data = df) + geom_density() +
@@ -278,22 +363,27 @@ ggplot(aes(density, color = factor(quality)), data = df) + geom_density() +
   xlim(min(df$density),quantile(df$density,0.999))
 ```
 
+在评分最高的酒当中，密度出现最多的值在0.990和0.997左右。    
+
+查看不同评分下，密度和酒精度关系：
 
 ```{r}
 ggplot(aes(density, alcohol, color = factor(quality)), data = df) + geom_jitter() +
   xlim(min(df$density),quantile(df$density,0.999)) + 
-  scale_colour_brewer(type = "div", palette = 2) + 
+  scale_colour_brewer(type = "seq", palette = 3) + 
   theme(panel.background = element_rect(fill = '#808080'), 
         panel.grid = element_line(colour = '#696969'))
 ```
 
-总体来看，低密度高酒精度的酒评分更高一些。
+总体来看，低密度高酒精度的酒评分更高一些。  
+
+查看不同评分下，密度和残糖关系：
 
 ```{r}
 ggplot(aes(density, residual.sugar,color = factor(quality)), data = df) + geom_jitter() +
   xlim(min(df$density),quantile(df$density,0.999)) + 
   coord_cartesian(ylim=c(0,30)) + 
-  scale_colour_brewer(type = "div", palette = 4) + 
+  scale_colour_brewer(type = "seq", palette = 9) + 
   theme(panel.background = element_rect(fill = '#808080'), 
         panel.grid = element_line(colour = '#696969'))
 ```
@@ -315,6 +405,9 @@ ggplot(aes(density, residual.sugar,color = factor(quality)), data = df) + geom_j
 # 定稿图与总结
 
 ### 绘图一
+ 
+酒的不同评分的分布情况：  
+ 
 ```{r}
 ggplot(aes(factor(quality)), data = df) + geom_histogram(stat = 'count') +
   labs(title = "Counts of Different Qulities of Wine", x = "Quality", y = "Count") +
@@ -327,29 +420,34 @@ ggplot(aes(factor(quality)), data = df) + geom_histogram(stat = 'count') +
 评分情况基本呈现正态分布，6分最多，3分，9分最少，没有出现1分或10分的情况。
 
 ### 绘图二
+
+密度和评分的关系：  
+
 ```{r}
 ggplot(aes(factor(quality),density), data = df) + 
-  geom_boxplot(aes(fill=factor(quality))) + 
+  geom_boxplot() + 
   ylim(min(df$density),quantile(df$density,0.999)) +
-  labs(title = "Densisity and Quality Relationship", x = "Quality", y = "Density") +
+  labs(title = "Densisity and Quality Relationship", x = "Quality", y = "Density (g/cm^3)") +
   theme(plot.title = element_text(hjust = 0.5)) + 
-  scale_fill_brewer(type = "seq", palette = 5) +
   theme(panel.background = element_rect(fill = '#808080'), 
-        panel.grid = element_line(colour = '#696969')) + 
-  guides(fill=FALSE)
+        panel.grid = element_line(colour = '#696969'))
 ```
 
 ### 描述二
 作为与评分相关性最强的变量，在不同的评分中，密度呈现一定的线型趋势，评分越高，密度的中位数下降（除了评分5比评分4的密度中位数要高）。
 
 ### 绘图三
+
+不同评分下，密度和酒精度关系：
+
 ```{r}
 ggplot(aes(density, alcohol, color = factor(quality)), data = df) + geom_jitter() +
   xlim(min(df$density),quantile(df$density,0.999)) + 
-  scale_colour_brewer(type = "div", palette = 2) + 
+  scale_colour_brewer(type = "seq", palette = 2) + 
   theme(panel.background = element_rect(fill = '#808080'), 
         panel.grid = element_line(colour = '#696969')) + 
-  labs(title = "Densisity and Alcohol Relationship by Quality", x = "Density", y = "Alcohol") +
+  labs(title = "Densisity and Alcohol Relationship by Quality", 
+       x = "Density (g/cm^3)", y = "Alcohol (% by volume)") +
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
@@ -358,4 +456,9 @@ ggplot(aes(density, alcohol, color = factor(quality)), data = df) + geom_jitter(
 在同样密度的酒之间，酒精度高的一般评分高；在同样酒精度的酒之间，不同密度的酒的评分对比不明显。
 
 # 反思
-在这个数据集中，分析了近5000中白葡萄酒的评分和参数的关系。总体来看，评分没有和任何一个特定的参数呈现强相关关系，说明酒的品质不能单独取决于一两个参数。在此前提下，密度和酒精度是两个相关性相对较强的指标。密度和评分负相关，酒精度和评分正相关。同时。密度和残糖、二氧化硫相关变量正相关。这与直觉基本一致，人们似乎更喜欢口感‘清冽’和‘醉人’的白葡萄酒。关于预测评分模型的建立，有待进一步研究。
+在这个数据集中，分析了近5000中白葡萄酒的评分和参数的关系。总体来看，评分没有和任何一个特定的参数呈现强相关关系，说明酒的品质不能单独取决于一两个参数。在此前提下，密度和酒精度是两个相关性相对较强的指标。密度和评分负相关，酒精度和评分正相关。同时。密度和残糖、二氧化硫相关变量正相关。这与直觉基本一致，人们似乎更喜欢口感‘清冽’和‘醉人’的白葡萄酒。关于预测评分模型的建立，有待进一步研究。  
+
+在分析时，由于评分没有和任何一个变量具有强相关关系，导致如果需要建模，对选取哪个变量比较困难，但是通过对比可以发现，变量中，密度、残糖和二氧化硫相关变量都是正相关的，密度和酒精度负相关，这为选择变量提供了思路。
+
+在进一步分析时。应该可以考虑将某些连续变量通过分组转变为分类变量，以进一步观察不同从变量之间的关系。不过，鉴于决定评分的参数较多，在条件允许的情况下，建议还是选择尽可能多的变量参与建模，提高准确度。
+
